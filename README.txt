@@ -1,7 +1,7 @@
 # Catalog-Item-Application
 
 ### Project Overview
->In this project, you'll work with authentication, APIs and Basic CRUD operation with Flask framework.
+> In this project, you'll work with authentication, APIs and Basic CRUD operation with Flask framework.
 
 ### Basic Functionality
 
