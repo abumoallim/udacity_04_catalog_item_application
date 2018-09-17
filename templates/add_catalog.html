@@ -1,0 +1,42 @@
+{% extends "base.html" %} 
+{% block body %}
+<div class="row login_container justify-content-md-center">
+  <div class="col-md-4">
+    <div class="card border-default">
+      {% if method == "ADD" %}
+      <!-- For Adding Catalog -->
+      <div class="card-header text-center border-bottom-0">
+        <span class="card-title h4">Add Catalog</span>
+      </div>
+      <form  action="{{url_for('addCatalog')}}" method=post>
+        <div class="form-group justify-content-md-center">
+          <label for="catalogName">Catalog Name : </label>
+          <input type="text" class="form-control" id="catalogName" name="catalog" aria-describedby="catalogName" placeholder="Enter Catalog Name">
+        </div>
+        <div class="control-group text-center input">
+          <button type="submit" class="btn btn-primary ">Submit</button>
+        </div>
+      </form>
+      {% elif method == "UPDATE" %}
+      <!-- For Updating Catalog -->
+      <div class="card-header text-center border-bottom-0">
+          <span class="card-title h4">Update Catalog</span>
+        </div>
+        <form  action="{{url_for('updateCatalog',catalog_id = catalog.id)}}" method=post>
+          <div class="form-group justify-content-md-center">
+            <label for="catalogName">Catalog Name : </label>
+            <input type="text" class="form-control" value={{catalog.name}} id="catalogName" name="catalog" aria-describedby="catalogName" placeholder="Enter Catalog Name">
+          </div>
+          <div class="control-group text-center input">
+            <button type="submit" class="btn btn-primary ">Submit</button>
+          </div>
+        </form>
+			{% endif %}
+
+    </div>
+  </div>
+
+</div>
+
+{% endblock %}
+

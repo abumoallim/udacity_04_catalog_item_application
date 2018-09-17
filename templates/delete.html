@@ -1,0 +1,33 @@
+{% extends "base.html" %} {% block body %}
+<div class="row justify-content-md-center">
+	<div class="card col-md-5">
+		<div class="card-body text-center">
+
+			{% if delete_type == "item" %}
+			<h4> Are you sure you want to delete Item {{catalogItem.name}}? </h4>
+			<form action="{{url_for('deleteItem',catalog_id = catalog_id,item_id = catalogItem.id)}}" method='post'>
+				<div class="form-group">
+					<button type="submit" class="btn btn-primary" id="submit">Yes</button>
+				</div>
+				
+			</form>
+			<a href="{{url_for('catalogDetails',catalog_id = catalogItem.catalog_id)}}" class="btn btn-secondary"> Cancel </a>
+
+			{% elif delete_type == "catalog" %}
+			<h4> Are you sure you want to delete Catalog {{catalog.name}}? </h4>
+			<form action="{{url_for('deleteCatalog',catalog_id = catalog.id)}}" method='post'>
+				<div class="form-group">
+					<button type="submit" class="btn btn-primary" id="submit">Yes</button>
+				</div>
+			</form>
+			<a href="{{url_for('index')}}" class="btn btn-secondary"> Cancel </a>
+
+			{% endif %}
+
+		</div>
+
+	</div>
+</div>
+</div>
+
+{% endblock %}

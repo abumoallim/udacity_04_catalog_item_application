@@ -1,0 +1,31 @@
+{% extends "base.html" %} {% block body %}
+<div class="row login_container justify-content-md-center">
+	<div class="col-md-4">
+		<div class="card border-default">
+			<div class="card border-default">
+				<div class="card-header border-bottom-0">
+					<span class="card-title h4">{{catalog.name}}</span>
+					<a class="btn btn-sm btn-primary float-right" href="{{url_for('addItem',catalog_id = catalog.id)}}">Add Item</a>
+				</div>
+				<ul class="list-group list-group-flush">
+				{% if not catalogItems %}
+					<li class="list-group-item">No items added yet.</li>
+				{% else %}
+				{% for catalogItem in catalogItems %}
+					<li class="list-group-item clearfix">
+						<a href="{{url_for('itemDetails',catalog_id = catalogItem.catalog_id,item_id= catalogItem.id)}}">{{ catalogItem.name }}</a>
+						<span class="float-right">
+							<a href="{{url_for('updateItem',catalog_id = catalog.id,item_id= catalogItem.id)}}" class="btn btn-xs btn-outline-info">Edit</a>
+							<a href="{{url_for('deleteItem',catalog_id = catalog.id,item_id= catalogItem.id)}}" class="btn btn-xs btn-outline-danger">Delete</a>
+						</span>
+					</li>
+				{% endfor %}
+				{% endif %}
+				</ul>
+			</div>
+		</div>
+	</div>
+
+</div>
+
+{% endblock %}

@@ -1,0 +1,54 @@
+{% extends "base.html" %}
+{% block body %}
+<div class="row container_index">
+    <div class="col-md-4">
+        <div class="card border-default">
+            <div class="card-header border-bottom-0">
+                <span class="card-title h4">Catalogs</span>
+                <a class="btn btn-sm btn-primary float-right" href="{{url_for('addCatalog')}}">Add</a>
+            </div>
+            <ul class="list-group list-group-flush">
+            {% if not catalogs %}
+                <li class="list-group-item">No categories added yet.</li>
+            {% else %}
+            {% for catalog in catalogs %}
+                <li class="list-group-item clearfix">	
+                    <a href="{{url_for('catalogDetails',catalog_id = catalog.id)}}">{{catalog.name}}</a>
+
+                    <span class="float-right">
+                        <a href="{{url_for('updateCatalog',catalog_id = catalog.id)}}" class="btn btn-xs btn-outline-info">Edit</a>
+                        <a href="{{url_for('deleteCatalog',catalog_id = catalog.id)}}" class="btn btn-xs btn-outline-danger">Delete</a>
+                    </span>
+
+                </li>
+            {% endfor %}
+            {% endif %}
+            </ul>
+        </div>
+    </div>
+    <div class="col-md-4">
+        <div class="card border-default">
+            <div class="card-header border-bottom-0">
+                <span class="card-title h4">Latest items</span>
+            </div>
+            <ul class="list-group list-group-flush">
+            {% if not catalogItems %}
+                <li class="list-group-item">No items added yet.</li>
+            {% else %}
+            {% for catalogItem in catalogItems %}
+                <li class="list-group-item clearfix">
+                    <a href="{{url_for('itemDetails',catalog_id = catalogItem.catalog_id,item_id= catalogItem.id)}}">{{ catalogItem.name }}</a>
+                    <span class="float-right">
+                        <a href="{{url_for('updateItem',catalog_id = catalogItem.catalog_id,item_id= catalogItem.id)}}" class="btn btn-xs btn-outline-info">Edit</a>
+                        <a href="{{url_for('deleteItem',catalog_id = catalogItem.catalog_id,item_id= catalogItem.id)}}" class="btn btn-xs btn-outline-danger">Delete</a>
+                    </span>
+                </li>
+            {% endfor %}
+            {% endif %}
+            </ul>
+        </div>
+    </div>
+</div>
+
+
+{% endblock %}

@@ -1,0 +1,75 @@
+{% extends "base.html" %} {% block body %}
+<div class="row login_container justify-content-md-center">
+	<div class="col-md-4">
+		<div class="card border-default">
+			{% if method == "ADD" %}
+			<!-- For Adding Item -->
+			<div class="card-header text-center border-bottom-0">
+				<span class="card-title h4">Add new Item</span>
+			</div>
+			<form action="{{url_for('addItem',catalog_id = catalog.id)}}" method="POST">
+				<div class="form-group justify-content-md-center">
+					<label for="itemName">Item name:</label>
+					<input type="text" class="form-control" id="itemName" name="item_name" aria-describedby="itemName" placeholder="Enter Item name">
+				</div>
+				<div class="form-group">
+					<label for="itemDescription">Item Description</label>
+					<input type="textarea" class="form-control" name="item_description" id="itemDescription" placeholder="Item Description">
+				</div>
+				<div class="form-group">
+					<label for="catalogSelect">Select Catalog</label>
+					<select class="form-control" id="catalogSelect" name=catalog_select method="GET" action="/">
+						{% for singleCatalog in catalogs %}
+						{% if singleCatalog.id == catalog.id %}
+						<option value="{{singleCatalog.id}}" SELECTED>{{singleCatalog.name}}</option>" 
+						{% else %}
+						<option value="{{singleCatalog.id}}">{{singleCatalog.name}}</option>" 
+						{% endif %} 
+						{% endfor %}
+					</select>
+				</div>
+				<div class="control-group text-center input">
+					<button type="submit" class="btn btn-primary ">Add Item</button>
+				</div>
+			</form>
+			{% elif method == "UPDATE" %}
+			<!-- For Updating Item Item -->
+			<div class="card-header text-center border-bottom-0">
+				<span class="card-title h4">Update Item</span>
+			</div>
+			<form action="{{url_for('updateItem',catalog_id = catalog.id,item_id = catalogItem.id)}}" method="POST">
+				<div class="form-group justify-content-md-center">
+					<label for="itemName">Item name:</label>
+					<input type="text" class="form-control" id="itemName" value="{{catalogItem.name}}" name="item_name" aria-describedby="itemName"
+					 placeholder="Enter Item name">
+				</div>
+				<div class="form-group">
+					<label for="itemDescription">Item Description</label>
+					<input type="textarea" class="form-control" name="item_description" value="{{catalogItem.description}}" id="itemDescription"
+					 placeholder="Item Description">
+				</div>
+				<div class="form-group">
+					<label for="catalogSelect">Select Catalog</label>
+					<select class="form-control" id="catalogSelect" name=catalog_select method="GET" action="/">
+						{% for catalog in catalogs %} 
+						{% if catalog.id == catalogItem.catalog_id %}
+						<option value="{{catalog.id}}" SELECTED>{{catalog.name}}</option>" 
+						{% else %}
+						<option value="{{catalog.id}}">{{catalog.name}}</option>" 
+						{% endif %} 
+						{% endfor %}
+					</select>
+				</div>
+
+				<div class="control-group text-center input">
+					<button type="submit" class="btn btn-primary ">Update Item</button>
+				</div>
+			</form>
+			{% endif %}
+
+		</div>
+	</div>
+
+</div>
+
+{% endblock %}

@@ -1,0 +1,34 @@
+{% extends "base.html" %} {% block body %}
+
+<div class="row login_container justify-content-md-center">
+  <div class="col-md-4">
+    <div class="card border-default">
+      <div class="card-header text-center border-bottom-0">
+        <span class="card-title h4">Login</span>
+      </div>
+      <form  action="" method=post>
+        <div class="form-group justify-content-md-center">
+          <label for="username">Username</label>
+          <input type="username" class="form-control" id="username" name="username" aria-describedby="username" placeholder="Enter Username">
+        </div>
+        <div class="form-group">
+          <label for="exampleInputPassword1">Password</label>
+          <input type="password" class="form-control" name="password" id="exampleInputPassword1" placeholder="Password">
+        </div>
+        <div class="control-group text-center input">
+          <button type="submit" class="btn btn-primary ">Submit</button>
+        </div>
+        <div class="text-center input" style="padding-top : 10px"> OR </div>
+        <div class="control-group text-center input"  style="margin : 10px">
+          <a href="{{auth_url}}" class="btn">
+            <img src="https://developers.google.com/identity/images/btn_google_signin_dark_normal_web.png">
+          </a>
+        </div>
+
+      </form>
+    </div>
+  </div>
+
+</div>
+
+{% endblock %}

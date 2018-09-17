@@ -1,0 +1,22 @@
+{% extends 'base.html' %}
+{% block body %}
+<div class="row justify-content-around">
+    <div class="col-md-4">
+        <div class="card border-default">
+            <div class="card-header">
+                <span class="card-title h4">{{ catalogItem.name }}</span>
+            </div>
+            <div class="card-body clearfix">
+                <p class="card-text">
+                    <h6 class="card-subtitle">Category:</h6>
+                    <a href="{{url_for('catalogDetails',catalog_id = catalog.id)}}">{{ catalog.name }}</a>
+                </p>
+                <p class="card-text">
+                    <h6 class="card-subtitle">Description:</h6>
+                    {{ catalogItem.description }}
+                </p>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

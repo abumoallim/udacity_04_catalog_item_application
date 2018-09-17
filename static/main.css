@@ -1,0 +1,20 @@
+i.material-icons {
+    vertical-align: text-bottom;
+}
+
+.container .row{
+    margin-top : 50px;
+}
+
+.card-header{
+    background : #212529;
+    color: white;
+}
+
+.form-group{
+   padding-right: 20px;
+   padding-left: 20px;
+   padding-top: 20px;
+}
+
+
