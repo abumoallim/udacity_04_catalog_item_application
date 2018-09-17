@@ -40,7 +40,7 @@
   1. From the vagrant directory inside the virtual machine,run application.py using:
     ```python application.py```
 
-### APIs Usage
+#### APIs Usage
 
   1. Get All Catalogs : http://localhost:5000/api/catalog/ (Headers : authentication_token)
   2. Create Catalog  :  http://localhost:5000/api/catalog/new/ (Headers : authentication_token, Params : catalog_name)
