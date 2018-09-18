@@ -58,12 +58,21 @@ def before_request():
 def register():
     if request.method == 'GET':
         return render_template('register.html')
-    user = User(request.form['username'],
-                request.form['password'], request.form['email'])
-    db.session.add(user)
-    db.session.commit()
-    flash('User successfully registered')
-    return redirect(url_for('login'))
+    username = request.form['username']
+    password = request.form['password']
+    email = request.form['email']
+    if username and password and email:
+        user = User()
+        user.email = request.form['email']
+        user.password = request.form['password']
+        user.username = request.form['username']
+        db.session.add(user)
+        db.session.commit()
+        flash('User successfully registered')
+        return redirect(url_for('login'))
+    else:
+        flash('Please fill all the fields to register')
+        return redirect(url_for('register'))
 
 
 # User Normal login
@@ -134,10 +143,12 @@ def callback():
             return 'HTTPError occurred.'
         google = get_google_auth(token=token)
         resp = google.get(Auth.USER_INFO)
+        print(resp)
         if resp.status_code == 200:
             user_data = resp.json()
             email = user_data['email']
             user = User.query.filter_by(email=email).first()
+            print(user)
             if user is None:
                 user = User()
                 user.email = email
@@ -148,14 +159,14 @@ def callback():
             db.session.commit()
             login_user(user)
             return redirect(url_for('index'))
-    return 'Could not fetch your information.'
+        return 'Could not fetch your information.'
 
 
 # Show all catalogs
 @app.route('/')
 @app.route('/catalog/')
 def index():
-    catalogs = Catalog.query.limit(10)
+    catalogs = Catalog.query.all()
     catalogItems = CatalogItem.query.order_by(CatalogItem.id.desc()).all()
     return render_template('index.html',
                            catalogs=catalogs,
@@ -167,7 +178,8 @@ def index():
 @login_required
 def addCatalog():
     if request.method == 'POST':
-        newCatalog = Catalog(name=request.form['catalog'])
+        newCatalog = Catalog(name=request.form['catalog'],
+                             created_by=current_user)
         db.session.add(newCatalog)
         db.session.commit()
         flash('Catalog Added Succesfully')
@@ -182,12 +194,18 @@ def addCatalog():
 def updateCatalog(catalog_id):
     catalog = Catalog.query.filter_by(id=catalog_id).first()
     if request.method == 'POST':
-        if request.form['catalog']:
-            catalog.name = request.form['catalog']
-            db.session.add(catalog)
-            db.session.commit()
-            flash('Catalog Updated Succesfully')
-            return redirect(url_for('index'))
+        if catalog.created_by == current_user:
+            if request.form['catalog']:
+                catalog.name = request.form['catalog']
+                db.session.add(catalog)
+                db.session.commit()
+                flash('Catalog Updated Succesfully')
+                return redirect(url_for('index'))
+        else:
+            flash('Only creator of this category can update')
+            return render_template('add_catalog.html',
+                                   catalog=catalog,
+                                   method="UPDATE")
     else:
         return render_template('add_catalog.html',
                                catalog=catalog,
@@ -201,17 +219,22 @@ def deleteCatalog(catalog_id):
     catalog = Catalog.query.filter_by(id=catalog_id).first()
     catalogItems = CatalogItem.query.filter_by(catalog_id=catalog_id).all()
     if request.method == "POST":
-        for items in catalogItems:
-            db.session.delete(items)
-        db.session.delete(catalog)
-        db.session.commit()
-        flash('Catalog Deleted Succesfully')
-
-        return redirect(url_for('index'))
+        if catalog.created_by == current_user:
+            for items in catalogItems:
+                db.session.delete(items)
+            db.session.delete(catalog)
+            db.session.commit()
+            flash('Catalog Deleted Succesfully')
+            return redirect(url_for('index'))
+        else:
+            flash('Only creator of this category can delete')
+            return render_template('delete.html',
+                                   catalog=catalog,
+                                   delete_type="catalog")
     else:
-                return render_template('delete.html',
-                                       catalog=catalog,
-                                       delete_type="catalog")
+        return render_template('delete.html',
+                               catalog=catalog,
+                               delete_type="catalog")
 
 
 # Showing items for particular Catalog
@@ -229,16 +252,23 @@ def catalogDetails(catalog_id):
 @login_required
 def addItem(catalog_id):
     if request.method == 'POST':
-        newItem = CatalogItem(name=request.form['item_name'],
-                              description=request.form['item_description'],
-                              catalog_id=request.form['catalog_select'])
-        db.session.add(newItem)
-        db.session.commit()
-        flash('Item Added Succesfully')
-
-        return redirect(url_for('catalogDetails',
-                        catalog_id=newItem.catalog_id))
-
+        catalog = Catalog.query.filter_by(id=catalog_id).first()
+        if catalog.created_by == current_user:
+            newItem = CatalogItem(name=request.form['item_name'],
+                                  description=request.form['item_description'],
+                                  catalog_id=request.form['catalog_select'])
+            db.session.add(newItem)
+            db.session.commit()
+            flash('Item Added Succesfully')
+            return redirect(url_for('catalogDetails',
+                            catalog_id=newItem.catalog_id))
+        else:
+            flash('Only creator of this category can add the item')
+            catalog = Catalog.query.filter_by(id=catalog_id).first()
+            items = CatalogItem.query.filter_by(catalog_id=catalog_id).all()
+            return render_template('catalog_item.html',
+                                   catalog=catalog,
+                                   catalogItems=items)
     else:
         catalogs = Catalog.query.all()
         catalog = Catalog.query.filter_by(id=catalog_id).first()
@@ -255,18 +285,33 @@ def addItem(catalog_id):
 def updateItem(catalog_id, item_id):
     catalogItem = CatalogItem.query.filter_by(id=item_id).first()
     if request.method == 'POST':
-        if request.form['item_name']:
-            catalogItem.name = request.form['item_name']
-        if request.form['item_description']:
-            catalogItem.description = request.form['item_description']
-        if request.form['catalog_select']:
-            catalogItem.catalog_id = request.form['catalog_select']
-        db.session.add(catalogItem)
-        db.session.commit()
-        flash('Item Updated Succesfully')
+        selectedCatalog = request.form['catalog_select']
+        catalog = Catalog.query.filter_by(id=catalog_id).first()
+        select = Catalog.query.filter_by(id=selectedCatalog).first()
+        user = current_user
+        if catalog.created_by == user and select.created_by == user:
+            if request.form['item_name']:
+                catalogItem.name = request.form['item_name']
+            if request.form['item_description']:
+                catalogItem.description = request.form['item_description']
+            if selectedCatalog:
+                catalogItem.catalog_id = selectedCatalog
+            db.session.add(catalogItem)
+            db.session.commit()
+            flash('Item Updated Succesfully')
 
-        return redirect(url_for('catalogDetails',
-                        catalog_id=catalogItem.catalog_id))
+            return redirect(url_for('catalogDetails',
+                            catalog_id=catalogItem.catalog_id))
+        else:
+            if catalog.created_by != current_user:
+                flash('Only creator of this category can edit the item')
+            else:
+                flash('Catalog you selected is not owned by you')
+            catalog = Catalog.query.filter_by(id=catalog_id).first()
+            items = CatalogItem.query.filter_by(catalog_id=catalog_id).all()
+            return render_template('catalog_item.html',
+                                   catalog=catalog,
+                                   catalogItems=items)
 
     else:
         catalogs = Catalog.query.all()
@@ -285,12 +330,21 @@ def updateItem(catalog_id, item_id):
 def deleteItem(catalog_id, item_id):
     catalogItem = CatalogItem.query.filter_by(id=item_id).first()
     if request.method == 'POST':
-        db.session.delete(catalogItem)
-        db.session.commit()
-        flash('Item Deleted Succesfully')
+        catalog = Catalog.query.filter_by(id=catalog_id).first()
+        if catalog.created_by == current_user:
+            db.session.delete(catalogItem)
+            db.session.commit()
+            flash('Item Deleted Succesfully')
 
-        return redirect(url_for('catalogDetails',
-                        catalog_id=catalogItem.catalog_id))
+            return redirect(url_for('catalogDetails',
+                            catalog_id=catalogItem.catalog_id))
+        else:
+            flash('Only creator of this category can delete the item')
+            catalog = Catalog.query.filter_by(id=catalog_id).first()
+            items = CatalogItem.query.filter_by(catalog_id=catalog_id).all()
+            return render_template('catalog_item.html',
+                                   catalog=catalog,
+                                   catalogItems=items)
     else:
         return render_template('delete.html',
                                catalog_id=catalog_id,
@@ -367,7 +421,8 @@ def catalogs_json(current_user):
 @token_required
 def addCatalogAPI(current_user):
         catalog_name = request.args.get('catalog_name')
-        newCatalog = Catalog(name=catalog_name)
+        newCatalog = Catalog(name=catalog_name,
+                             created_by=current_user)
         db.session.add(newCatalog)
         db.session.commit()
         return jsonify(id=newCatalog.id, name=newCatalog.name)
@@ -380,11 +435,15 @@ def updateCatalogAPI(current_user):
     catalog_id = request.args.get('catalog_id')
     updateCatalog = Catalog.query.filter_by(id=catalog_id).first()
     if request.method == 'POST':
-        if request.args.get('catalog_name'):
-            updateCatalog.name = request.args.get('catalog_name')
-            db.session.add(updateCatalog)
-            db.session.commit()
-            return jsonify(id=updateCatalog.id, name=updateCatalog.name)
+        if updateCatalog.created_by == current_user:
+            if request.args.get('catalog_name'):
+                updateCatalog.name = request.args.get('catalog_name')
+                db.session.add(updateCatalog)
+                db.session.commit()
+                return jsonify(id=updateCatalog.id, name=updateCatalog.name)
+        else:
+            return jsonify({'message': 'You are not ' +
+                            'authorized to update this catalog!'}), 401
 
 
 # Deleting catalog
@@ -395,11 +454,15 @@ def deleteCatalogAPI(current_user):
     catalog = Catalog.query.filter_by(id=catalog_id).first()
     catalogItems = CatalogItem.query.filter_by(catalog_id=catalog_id).all()
     if request.method == "POST":
-        for items in catalogItems:
-            db.session.delete(items)
-        db.session.delete(catalog)
-        db.session.commit()
-        return jsonify('Catalog Deleted Succesfully')
+        if catalog.created_by == current_user:
+            for items in catalogItems:
+                db.session.delete(items)
+            db.session.delete(catalog)
+            db.session.commit()
+            return jsonify('Catalog Deleted Succesfully')
+        else:
+            return jsonify({'message': 'You are not ' +
+                            'authorized to delete this catalog!'}), 401
 
 
 # Showing items for particular Catalog

@@ -22,11 +22,6 @@ class User(db.Model):
     registered_on = db.Column(
         'registered_on', db.DateTime, default=datetime.datetime.utcnow)
 
-    def __init__(self, username, password, email):
-        self.username = username
-        self.password = password
-        self.email = email
-        self.registered_on = datetime.datetime.utcnow()
 
     def is_authenticated(self):
         return True
@@ -50,13 +45,17 @@ class Catalog(db.Model):
 
     id = db.Column(db.Integer, primary_key=True)
     name = db.Column(db.String(250), nullable=False)
-
+    created_by_id = db.Column(db.Integer, db.ForeignKey('users.user_id'))
+    created_by = db.relationship(User)
     @property
     def serialize(self):
         return {
             'name': self.name,
             'id': self.id,
         }
+    
+    def is_creator(self, User):
+        return self.created_by == user 
 
 
 # Catalog Item
@@ -68,6 +67,8 @@ class CatalogItem(db.Model):
     description = db.Column(db.String(250), nullable=False)
     catalog_id = db.Column(db.Integer, db.ForeignKey('catalog.id'))
     catalog = db.relationship(Catalog)
+    created_by_id = db.Column(db.Integer, db.ForeignKey('users.user_id'))
+    created_by = db.relationship(User)
 
     @property
     def serialize(self):
@@ -77,3 +78,6 @@ class CatalogItem(db.Model):
             'description': self.description,
             'catalog_id': self.catalog_id,
         }
+
+    def is_creator(self, User):
+        return self.created_by == user
