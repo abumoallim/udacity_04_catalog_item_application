@@ -409,21 +409,21 @@ def restLogin():
 
 
 # Get Catalogs
-@app.route('/catalog/JSON/')
+@app.route('/api/catalog/')
 def catalogs_json():
     catalogs = Catalog.query.all()
     return jsonify([c.serialize for c in catalogs])
 
 
 # Get Particular Category
-@app.route('/catalog/<int:catalog_id>/JSON/')
+@app.route('/api/catalog/<int:catalog_id>/')
 def catalog_json(catalog_id):
     catalog = Catalog.query.filter_by(id=catalog_id).first()
     return jsonify(catalog.serialize)
 
 
 # Get Particular Item
-@app.route('/item/<int:item_id>/JSON/')
+@app.route('/api/item/<int:item_id>/')
 def items_json(item_id):
     catalogItem = CatalogItem.query.filter_by(id=item_id).first()
     return jsonify(catalogItem.serialize)
