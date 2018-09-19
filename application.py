@@ -139,7 +139,7 @@ def callback():
                 Auth.TOKEN_URI,
                 client_secret=Auth.CLIENT_SECRET,
                 authorization_response=request.url)
-        except:
+        except Exception:
             return 'HTTPError occurred.'
         google = get_google_auth(token=token)
         resp = google.get(Auth.USER_INFO)
@@ -377,7 +377,7 @@ def token_required(f):
         try:
             data = jwt.decode(token, app.secret_key)
             current_user = User.query.filter_by(id=data['id']).first()
-        except:
+        except Exception:
             return jsonify({'message': 'Token is invalid!'}), 401
 
         return f(current_user, *args, **kwargs)
@@ -409,11 +409,24 @@ def restLogin():
 
 
 # Get Catalogs
-@app.route('/api/catalog/')
-@token_required
-def catalogs_json(current_user):
+@app.route('/catalog/JSON/')
+def catalogs_json():
     catalogs = Catalog.query.all()
     return jsonify([c.serialize for c in catalogs])
+
+
+# Get Particular Category
+@app.route('/catalog/<int:catalog_id>/JSON/')
+def catalog_json(catalog_id):
+    catalog = Catalog.query.filter_by(id=catalog_id).first()
+    return jsonify(catalog.serialize)
+
+
+# Get Particular Item
+@app.route('/item/<int:item_id>/JSON/')
+def items_json(item_id):
+    catalogItem = CatalogItem.query.filter_by(id=item_id).first()
+    return jsonify(catalogItem.serialize)
 
 
 # Create a new Catalog
@@ -472,6 +485,7 @@ def catalogDetailsAPI(current_user):
     catalog_id = request.args.get('catalog_id')
     catalogItems = CatalogItem.query.filter_by(catalog_id=catalog_id).all()
     return jsonify([c.serialize for c in catalogItems])
+
 
 if __name__ == '__main__':
     app.debug = True

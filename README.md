@@ -23,6 +23,14 @@
   2. Download or Clone [fullstack-nanodegree-vm](https://github.com/udacity/fullstack-nanodegree-vm) repository.
   3. Go to Catalog folder and put your project inside it. 
 
+#### Requirements:
+   1. Install request auth library:
+  
+  ```
+    $ pip install requests requests_oauthlib
+  ```
+	
+
 #### Launching the Virtual Machine:
   1. Launch the Vagrant VM inside Vagrant sub-directory in the downloaded fullstack-nanodegree-vm repository using command:
   
@@ -42,11 +50,13 @@
 
 #### APIs Usage
 
-  1. Get All Catalogs : http://localhost:5000/api/catalog/ (Headers : authentication_token)
-  2. Create Catalog  :  http://localhost:5000/api/catalog/new/ (Headers : authentication_token, Params : catalog_name)
-  3. Update Catalog  :  http://localhost:5000/api/catalog/edit/ (Headers : authentication_token, Params : Params : catalog_id,catalog_name)
-  4. Delete Catalog  :  http://localhost:5000/api/catalog/delete/ (Headers : authentication_token, Params : Params : catalog_id)
-  5. Get All items for Catalog : http://localhost:5000/api/catalog/items/ (Headers : authentication_token, Params : Params : catalog_id,catalog_name)
+  1. Get All Catalogs 	    : http://localhost:5000/catalog/JSON/
+  2. Get particular Catalog : http://localhost:5000/catalog/<catalog_id>/JSON/
+  3. Get particular Item    : http://localhost:5000/item/<item_id>/JSON/
+  4. Create Catalog         : http://localhost:5000/api/catalog/new/ (Headers : authentication_token, Params : catalog_name)
+  5. Update Catalog         : http://localhost:5000/api/catalog/edit/ (Headers : authentication_token, Params : Params : catalog_id,catalog_name)
+  6. Delete Catalog         : http://localhost:5000/api/catalog/delete/ (Headers : authentication_token, Params : Params : catalog_id)
+  7. Get All items for Catalog : http://localhost:5000/api/catalog/items/ (Headers : authentication_token, Params : Params : catalog_id,catalog_name)
 
   
 #### Migration:
